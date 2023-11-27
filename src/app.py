@@ -179,7 +179,7 @@ def Plot_parcoords(filename, color_col, reverse_color):
 
 # assign directory
 # the IDA ICE output should be stored as .csv inside a folder named IDAICE_results'
-directory = 'src\IDAICE_results'
+directory = 'src//IDAICE_results'
 save_directory = 'ParallelCoordinates_Plots'
 
 # Create a Dash app
