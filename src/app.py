@@ -180,6 +180,7 @@ def Plot_parcoords(filename, color_col, reverse_color):
 # assign directory
 # the IDA ICE output should be stored as .csv inside a folder named IDAICE_results'
 current_directory = os.path.dirname(os.path.abspath(__file__))
+print(current_directory)
 idaice_results_directory = os.path.join(current_directory, 'IDAICE_results')
 save_directory = 'ParallelCoordinates_Plots'
 
@@ -194,7 +195,7 @@ first_file = file_dropdown_options[0]['value']
 
 #print(first_file)
 df = pd.read_csv(os.path.join(idaice_results_directory, first_file))
-print(df)
+#print(df)
 
 
 ##################################################################
@@ -265,8 +266,8 @@ def update_dropdown(selected_filename):
 
 
 def update_figure(selected_filename, selected_column, reverse_color):
-    print(selected_filename)
-    print(selected_column)
+    #print(selected_filename)
+    #print(selected_column)
     return Plot_parcoords(selected_filename, selected_column, reverse_color)
 
 ##################################################################
