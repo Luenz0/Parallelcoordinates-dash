@@ -146,7 +146,7 @@ def Plot_parcoords(filename, color_col, reverse_color):
     reverse = True if 'reverse' in reverse_color else False
     
     #Read the file
-    df = pd.read_csv(directory +'\\'+ filename) 
+    df = pd.read_csv(os.path.join(directory, filename)) 
         
     #preprocess (return df and cat columns and its labels)
     df, cat_cols, dict_labels, n_inputs, n_outputs = preprocessing(df)    #df:values, cat_cols:categorical index, dictlabels:text 
