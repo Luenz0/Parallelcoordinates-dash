@@ -8,7 +8,8 @@ services:
     buildCommand: pip install -r requirements.txt
     # A src/app.py file must exist and contain `server=app.server`
     #startCommand: gunicorn --chdir src app:server
-    startCommand: gunicorn app:server -b 0.0.0.0:$PORT
+    #startCommand: gunicorn app:server -b 0.0.0.0:$PORT
+    startCommand: gunicorn src.app:server
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
