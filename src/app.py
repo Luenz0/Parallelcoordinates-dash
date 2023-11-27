@@ -297,4 +297,4 @@ def save_as_html(n_clicks, fig):
 
 
 # Run the app in the notebook
-app.run_server(debug=True, port=8050)
+app.run_server(host='0.0.0.0', port=8080)
