@@ -227,7 +227,7 @@ app.layout = html.Div([
     
     dcc.Graph(
         id='parcoord-graph',
-        figure=Plot_parcoords(first_file, df.columns[8], [False]),
+        figure=Plot_parcoords(first_file, df.columns[1], [False]),
         #style={'width': '1500px', 'height': '600px'}
     ),
     
