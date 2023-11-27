@@ -39,8 +39,8 @@ def preprocessing(df):
         n_inputs =  len(inputs)
         outputs = list(df.columns[empty_index + 1:])
         n_outputs = len(outputs)
-        print("Inputs:", len(inputs))
-        print("Outputs:", len(outputs))
+        #print("Inputs:", len(inputs))
+        #print("Outputs:", len(outputs))
     #else:
         #print("No column matching the pattern found.")
 
@@ -97,8 +97,8 @@ def get_data_PC(df, cat_cols, dict_labels, n_inputs, n_outputs):
     #Drop extra logged outputs, maximum 8, drops the last items
     if emp_out < 0:
         columns_to_drop = df.columns[emp_inp:]
-        print("Dropping")
-        print(columns_to_drop)
+        #print("Dropping")
+        #print(columns_to_drop)
         df.drop(columns=columns_to_drop, inplace=True) 
         n_outputs = 8
         #print(df)    
@@ -146,7 +146,7 @@ def Plot_parcoords(filename, color_col, reverse_color):
     reverse = True if 'reverse' in reverse_color else False
     
     #Read the file
-    df = pd.read_csv(os.path.join(directory, filename)) 
+    df = pd.read_csv(os.path.join(idaice_results_directory, filename)) 
         
     #preprocess (return df and cat columns and its labels)
     df, cat_cols, dict_labels, n_inputs, n_outputs = preprocessing(df)    #df:values, cat_cols:categorical index, dictlabels:text 
@@ -186,15 +186,14 @@ save_directory = 'ParallelCoordinates_Plots'
 app = dash.Dash(__name__)
 server = app.server
 
-# Define dropdown options
-if os.path.exists(idaice_results_directory) and os.path.isdir(idaice_results_directory):
-    # List all CSV files in the IDAICE_results directory
-    file_dropdown_options = [{'label': filename, 'value': filename} for filename in os.listdir(idaice_results_directory) if filename.endswith('.csv')]
 
+file_dropdown_options = [{'label': filename, 'value': filename} for filename in os.listdir(idaice_results_directory) if filename.endswith('.csv')]
 #Starting point
 first_file = file_dropdown_options[0]['value']
-print(first_file)
-df = pd.read_csv(os.path.join(directory, first_file))
+
+#print(first_file)
+df = pd.read_csv(os.path.join(idaice_results_directory, first_file))
+print(df)
 
 
 ##################################################################
@@ -246,7 +245,7 @@ app.layout = html.Div([
 )
 
 def update_dropdown(selected_filename):
-    df = pd.read_csv(os.path.join(directory, selected_filename))
+    df = pd.read_csv(os.path.join(idaice_results_directory, selected_filename))
     df, cat_cols, dict_labels, n_inputs, n_outputs = preprocessing(df)
     df, data_PC = get_data_PC(df, cat_cols, dict_labels, n_inputs, n_outputs)
     #print(df)
@@ -265,6 +264,8 @@ def update_dropdown(selected_filename):
 
 
 def update_figure(selected_filename, selected_column, reverse_color):
+    print(selected_filename)
+    print(selected_column)
     return Plot_parcoords(selected_filename, selected_column, reverse_color)
 
 ##################################################################
