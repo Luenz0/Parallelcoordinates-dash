@@ -13,6 +13,9 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 
+import tkinter as tk
+from tkinter import filedialog
+
 
 # Jupyter notebook to create ParallelCoordinates (PC) from Parametric runs in IDAICE
 # the IDA ICE output should be stored as .csv inside a folder named IDAICE_results
@@ -127,7 +130,8 @@ def get_data_PC(df, cat_cols, dict_labels, n_inputs, n_outputs):
                           values = df[col] , 
                           tickvals = [val_min, val_max], 
                           ticktext = [' ', ' '])]
-            new_dimension = new_dimension + extra
+            #new_dimension = new_dimension + extra
+            new_dimension = new_dimension + empty_dimension
             
 
         data_PC = data_PC + new_dimension
@@ -280,17 +284,20 @@ def update_figure(selected_filename, selected_column, reverse_color):
 )
 def save_as_html(n_clicks, fig):
     if n_clicks is not None and n_clicks > 0:
-        
-
-        figure=go.Figure(fig)
-        
+        figure = go.Figure(fig)
         
         if isinstance(figure, go.Figure):
-            figure.write_html('current_figure_export.html')
-            print("HTML file saved successfully")
+            root = tk.Tk()
+            root.withdraw()
+            file_path = filedialog.asksaveasfilename(defaultextension=".html", filetypes=[("HTML files", "*.html")])
+            
+            if file_path:
+                figure.write_html(file_path)
+                print(f"HTML file saved successfully at: {file_path}")
+            else:
+                print("File not saved.")
         else:
             print("Error: Invalid figure object received")
-
         
     return n_clicks
 
