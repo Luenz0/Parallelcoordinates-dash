@@ -198,7 +198,7 @@ df = pd.read_csv(os.path.join(directory, first_file))
 ##################################################################
 # Define the layout of the app
 app.layout = html.Div([
-    html.H1("Parallel Coordinates Plots"),
+    html.H1("Parallel Coordinates Plots - LS"),
     
     html.Br(),
     html.Label("Select File"),
