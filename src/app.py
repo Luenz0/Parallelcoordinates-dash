@@ -184,6 +184,7 @@ save_directory = 'ParallelCoordinates_Plots'
 
 # Create a Dash app
 app = dash.Dash(__name__)
+server = app.server
 
 # Define dropdown options
 file_dropdown_options = [{'label': filename, 'value': filename} for filename in os.listdir(directory) if filename.endswith('.csv')]
