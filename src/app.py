@@ -11,10 +11,9 @@ import os
 import dash
 from dash import dcc
 from dash import html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
+from base64 import b64encode
 
-import tkinter as tk
-from tkinter import filedialog
 
 
 # Jupyter notebook to create ParallelCoordinates (PC) from Parametric runs in IDAICE
@@ -131,6 +130,8 @@ def get_data_PC(df, cat_cols, dict_labels, n_inputs, n_outputs):
                           tickvals = [val_min, val_max], 
                           ticktext = [' ', ' '])]
             #new_dimension = new_dimension + extra
+
+            ### Aproach B: empty dimension
             new_dimension = new_dimension + empty_dimension
             
 
@@ -190,8 +191,8 @@ save_directory = 'ParallelCoordinates_Plots'
 
 # Create a Dash app
 app = dash.Dash(__name__)
-server = app.server
-
+server = app.server # To deploy the app
+buffer = io.StringIO() #To save the figure as html
 
 file_dropdown_options = [{'label': filename, 'value': filename} for filename in os.listdir(idaice_results_directory) if filename.endswith('.csv')]
 #Starting point
@@ -236,7 +237,11 @@ app.layout = html.Div([
         #style={'width': '1500px', 'height': '600px'}
     ),
     
-     html.Button("Save as HTML", id="save_as_html", n_clicks=0)
+    html.A(
+        html.Button("Save as HTML", id="save_as_html"),
+        id='download-link',
+        download="Parallel-Coordinates-LS.html"
+    )
 ])
 ##################################################################
 
@@ -277,29 +282,22 @@ def update_figure(selected_filename, selected_column, reverse_color):
 ##################################################################
 # Callback to save as HTML file
 @app.callback(
-    Output('save_as_html', 'n_clicks'),
+    Output('download-link', 'href'),
     Input('save_as_html', 'n_clicks'),
     Input('parcoord-graph', 'figure'),
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
 def save_as_html(n_clicks, fig):
     if n_clicks is not None and n_clicks > 0:
+        buffer = io.StringIO()
         figure = go.Figure(fig)
-        
-        if isinstance(figure, go.Figure):
-            root = tk.Tk()
-            root.withdraw()
-            file_path = filedialog.asksaveasfilename(defaultextension=".html", filetypes=[("HTML files", "*.html")])
-            
-            if file_path:
-                figure.write_html(file_path)
-                print(f"HTML file saved successfully at: {file_path}")
-            else:
-                print("File not saved.")
-        else:
-            print("Error: Invalid figure object received")
-        
-    return n_clicks
+        figure.write_html(buffer)
+        html_bytes = buffer.getvalue().encode()
+        encoded = b64encode(html_bytes).decode()
+        href_value = f'data:text/html;base64,{encoded}'
+        return href_value
+
+    return 'data:text/html;base64,'
 
 
 
