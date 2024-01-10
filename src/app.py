@@ -273,6 +273,10 @@ def update_dropdown(selected_filename):
     df = pd.read_csv(os.path.join(idaice_results_directory, selected_filename))
     df, cat_cols, dict_labels, n_inputs, n_outputs = preprocessing(df)
     df, data_PC = get_data_PC(df, cat_cols, dict_labels, n_inputs, n_outputs)
+
+    labels_df = pd.DataFrame(dict_labels)
+    labels_df = labels_df.reindex(index=labels_df.index[::-1])
+
     #print(df)
 
     col_dropdown_options = [{'label': col, 'value': col} for col in df.columns]
@@ -280,8 +284,8 @@ def update_dropdown(selected_filename):
   
 
     # Update columns and data for the table
-    table_columns = [{'name': col, 'id': col} for col in dict_labels.keys()]
-    table_data = [{col: '/ '.join(dict_labels[col][key] for key in dict_labels[col])} for col in cat_cols]
+    table_columns = [{'name': col, 'id': col} for col in labels_df.columns]
+    table_data = labels_df.to_dict('records')
 
     return col_dropdown_options, default_value, table_columns, table_data
 
