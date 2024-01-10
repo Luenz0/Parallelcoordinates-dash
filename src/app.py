@@ -226,6 +226,7 @@ app.layout = html.Div([
     html.Label("Select Color"),
     dcc.Dropdown(
         id='col_dropdown',
+        value = []
     ),
     
     html.Br(),
@@ -237,11 +238,6 @@ app.layout = html.Div([
         ),
 
     
-    dcc.Graph(
-        id='parcoord-graph',
-        figure=Plot_parcoords(first_file, df.columns[1], [False]),
-        #style={'width': '1500px', 'height': '600px'}
-    ),
     
     html.A(
         html.Button("Save as HTML", id="save_as_html"),
@@ -252,8 +248,22 @@ app.layout = html.Div([
     html.Br(),  # Adding a line break
     html.Br(),
     dash_table.DataTable(
+        id='table2',
+    ),
+
+    html.Br(),  # Adding a line break
+    html.Br(),
+    dash_table.DataTable(
         id='table',
+     ),
+
+
+    dcc.Graph(
+        id='parcoord-graph',
+        figure=Plot_parcoords(first_file, df.columns[1], [False]),
+        #style={'width': '1500px', 'height': '600px'}
     )
+    
 ])
 ##################################################################
 
@@ -266,10 +276,13 @@ app.layout = html.Div([
     Output('col_dropdown', 'value'),
     Output('table', 'columns'),
     Output('table', 'data'),
+    Output('table2', 'columns'),
+    Output('table2', 'data'),
     Input('file_dropdown', 'value')
 )
 
 def update_dropdown(selected_filename):
+    print(selected_filename)
     df = pd.read_csv(os.path.join(idaice_results_directory, selected_filename))
     df, cat_cols, dict_labels, n_inputs, n_outputs = preprocessing(df)
     df, data_PC = get_data_PC(df, cat_cols, dict_labels, n_inputs, n_outputs)
@@ -277,17 +290,31 @@ def update_dropdown(selected_filename):
     labels_df = pd.DataFrame(dict_labels)
     labels_df = labels_df.reindex(index=labels_df.index[::-1])
 
-    #print(df)
+    print(df)
 
     col_dropdown_options = [{'label': col, 'value': col} for col in df.columns]
-    default_value = df.columns[-1] if len(df.columns) > 0 else None
+    #default_value = df.columns[-2]# if len(df.columns) > 0 else None
   
 
+
+    input_output_names = pd.DataFrame(columns=['Inputs', 'Outputs'])
+    input_output_names = pd.DataFrame()
+    input_output_names['Inputs'] = df.columns[:n_inputs] if n_inputs > 0 else None
+    input_output_names['Outputs'] = df.columns[-n_outputs:] if n_outputs > 0 else None
+    print(input_output_names)
+
+    default_value = input_output_names['Outputs'].iloc[-1]
+    print(default_value)
     # Update columns and data for the table
     table_columns = [{'name': col, 'id': col} for col in labels_df.columns]
     table_data = labels_df.to_dict('records')
 
-    return col_dropdown_options, default_value, table_columns, table_data
+    table2_columns = [{'name': col, 'id': col} for col in input_output_names.columns]
+    table2_data = input_output_names.to_dict('records')
+
+
+
+    return col_dropdown_options, default_value, table_columns, table_data, table2_columns, table2_data
 
 ##################################################################
 # Define callback to update the color and figure based on dropdown selection
@@ -301,7 +328,7 @@ def update_dropdown(selected_filename):
 
 def update_figure(selected_filename, selected_column, reverse_color):
     #print(selected_filename)
-    #print(selected_column)
+    print(selected_column)
     return Plot_parcoords(selected_filename, selected_column, reverse_color)
 
 ##################################################################
