@@ -11,6 +11,7 @@ import os
 import dash
 from dash import dcc
 from dash import html
+from dash import dash_table
 from dash.dependencies import Input, Output, State
 from base64 import b64encode
 
@@ -165,7 +166,9 @@ def Plot_parcoords(filename, color_col, reverse_color):
                           cmin = df[color_col].min(),
                           cmax = df[color_col].max()
                )
-
+    
+    labelfont = dict(color = 'white')
+    rangefont = dict(color = 'white')
 
 
     ## Figure ##
@@ -175,6 +178,8 @@ def Plot_parcoords(filename, color_col, reverse_color):
             line=line,
             dimensions = data_PC,
             labelangle = 15,   
+            labelfont= labelfont,
+            rangefont = rangefont 
        )
     )
     
@@ -185,7 +190,7 @@ def Plot_parcoords(filename, color_col, reverse_color):
 # assign directory
 # the IDA ICE output should be stored as .csv inside a folder named IDAICE_results'
 current_directory = os.path.dirname(os.path.abspath(__file__))
-print(current_directory)
+#print(current_directory)
 idaice_results_directory = os.path.join(current_directory, 'IDAICE_results')
 save_directory = 'ParallelCoordinates_Plots'
 
@@ -200,7 +205,8 @@ first_file = file_dropdown_options[0]['value']
 
 #print(first_file)
 df = pd.read_csv(os.path.join(idaice_results_directory, first_file))
-#print(df)
+df, cat_cols, dict_labels, n_inputs, n_outputs = preprocessing(df)
+#print(dict_labels)
 
 
 ##################################################################
@@ -241,6 +247,12 @@ app.layout = html.Div([
         html.Button("Save as HTML", id="save_as_html"),
         id='download-link',
         download="Parallel-Coordinates-LS.html"
+    ),
+
+    html.Br(),  # Adding a line break
+    html.Br(),
+    dash_table.DataTable(
+        id='table',
     )
 ])
 ##################################################################
@@ -252,6 +264,8 @@ app.layout = html.Div([
 @app.callback(
     Output('col_dropdown', 'options'),
     Output('col_dropdown', 'value'),
+    Output('table', 'columns'),
+    Output('table', 'data'),
     Input('file_dropdown', 'value')
 )
 
@@ -260,9 +274,16 @@ def update_dropdown(selected_filename):
     df, cat_cols, dict_labels, n_inputs, n_outputs = preprocessing(df)
     df, data_PC = get_data_PC(df, cat_cols, dict_labels, n_inputs, n_outputs)
     #print(df)
+
     col_dropdown_options = [{'label': col, 'value': col} for col in df.columns]
     default_value = df.columns[-1] if len(df.columns) > 0 else None
-    return col_dropdown_options, default_value
+  
+
+    # Update columns and data for the table
+    table_columns = [{'name': col, 'id': col} for col in dict_labels.keys()]
+    table_data = [{col: '/ '.join(dict_labels[col][key] for key in dict_labels[col])} for col in cat_cols]
+
+    return col_dropdown_options, default_value, table_columns, table_data
 
 ##################################################################
 # Define callback to update the color and figure based on dropdown selection
