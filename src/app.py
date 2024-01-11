@@ -212,7 +212,7 @@ df, cat_cols, dict_labels, n_inputs, n_outputs = preprocessing(df)
 ##################################################################
 # Define the layout of the app
 app.layout = html.Div([
-    html.H1("Parallel Coordinates Plots - LS"),
+    html.H1("Parallel Coordinates Plots"),
     
     html.Br(),
     html.Label("Select File"),
@@ -282,7 +282,7 @@ app.layout = html.Div([
 )
 
 def update_dropdown(selected_filename):
-    print(selected_filename)
+    #print(selected_filename)
     df = pd.read_csv(os.path.join(idaice_results_directory, selected_filename))
     df, cat_cols, dict_labels, n_inputs, n_outputs = preprocessing(df)
     df, data_PC = get_data_PC(df, cat_cols, dict_labels, n_inputs, n_outputs)
@@ -290,21 +290,26 @@ def update_dropdown(selected_filename):
     labels_df = pd.DataFrame(dict_labels)
     labels_df = labels_df.reindex(index=labels_df.index[::-1])
 
-    print(df)
+    #print(df)
 
     col_dropdown_options = [{'label': col, 'value': col} for col in df.columns]
     #default_value = df.columns[-2]# if len(df.columns) > 0 else None
   
 
+    # Create DataFrames for 'Inputs' and 'Outputs'
+    inputs_df = pd.DataFrame({'Inputs': list(df.columns[:n_inputs]) if n_inputs > 0 else []})
+    outputs_df = pd.DataFrame({'Outputs': list(df.columns[-n_outputs:]) if n_outputs > 0 else []})
 
-    input_output_names = pd.DataFrame(columns=['Inputs', 'Outputs'])
-    input_output_names = pd.DataFrame()
-    input_output_names['Inputs'] = df.columns[:n_inputs] if n_inputs > 0 else None
-    input_output_names['Outputs'] = df.columns[-n_outputs:] if n_outputs > 0 else None
-    print(input_output_names)
+    # Concatenate DataFrames along the columns axis
+    input_output_names = pd.concat([inputs_df, outputs_df], axis=1)
+
+    # Fill NaN values with 0
+    input_output_names = input_output_names.fillna("-")
+
+    #print(input_output_names)
 
     default_value = input_output_names['Outputs'].iloc[-1]
-    print(default_value)
+    #print(default_value)
     # Update columns and data for the table
     table_columns = [{'name': col, 'id': col} for col in labels_df.columns]
     table_data = labels_df.to_dict('records')
@@ -328,7 +333,7 @@ def update_dropdown(selected_filename):
 
 def update_figure(selected_filename, selected_column, reverse_color):
     #print(selected_filename)
-    print(selected_column)
+    #print(selected_column)
     return Plot_parcoords(selected_filename, selected_column, reverse_color)
 
 ##################################################################
